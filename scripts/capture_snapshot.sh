@@ -31,7 +31,7 @@ capture_usb() {
     ffmpeg -y -f v4l2 -input_format mjpeg \
         -video_size "${STREAM_WIDTH:-1280}x${STREAM_HEIGHT:-720}" \
         -framerate "${STREAM_FRAMERATE:-5}" -i "$CAMERA_DEVICE" \
-        -frames:v 1 "$SNAPSHOT_FILE.tmp" >/dev/null 2>&1 \
+        -frames:v 1 -f image2 "$SNAPSHOT_FILE.tmp" >/dev/null 2>&1 \
         && mv -f "$SNAPSHOT_FILE.tmp" "$SNAPSHOT_FILE"
 }
 
