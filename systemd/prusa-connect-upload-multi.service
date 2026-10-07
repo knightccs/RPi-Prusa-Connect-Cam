@@ -1,0 +1,21 @@
+[Unit]
+Description=Prusa Connect Multi-Camera Upload Service
+After=network-online.target camera-stream-multi.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/prusa-cam-multi/scripts/multi_prusa_connect_upload.sh
+Restart=always
+RestartSec=10
+User=root
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=prusa-connect-upload-multi
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/tmp
+
+[Install]
+WantedBy=multi-user.target

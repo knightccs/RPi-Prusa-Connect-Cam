@@ -7,7 +7,7 @@
 # - All temp files in RAM (tmpfs) to protect SD card
 #
 
-CONFIG_FILE="/etc/prusa_cam.conf"
+CONFIG_FILE="${CONFIG_FILE:-/etc/prusa_cam.conf}"
 
 # Check if config exists
 if [[ ! -f "$CONFIG_FILE" ]]; then
@@ -67,7 +67,7 @@ import os
 
 HOST = '0.0.0.0'
 PORT = $STREAM_PORT
-SNAPSHOT_FILE = '/tmp/stream_snapshot.jpg'
+SNAPSHOT_FILE = os.environ.get('SNAPSHOT_FILE', '/tmp/stream_snapshot.jpg')
 SNAPSHOT_INTERVAL = 2  # Save snapshot every 2 seconds
 
 BOUNDARY = b'--FRAME'
@@ -220,7 +220,7 @@ import os
 
 HOST = '0.0.0.0'
 PORT = $STREAM_PORT
-SNAPSHOT_FILE = '/tmp/stream_snapshot.jpg'
+SNAPSHOT_FILE = os.environ.get('SNAPSHOT_FILE', '/tmp/stream_snapshot.jpg')
 SNAPSHOT_INTERVAL = 2
 
 BOUNDARY = b'--FRAME'

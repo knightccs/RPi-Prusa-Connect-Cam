@@ -1,0 +1,20 @@
+[Unit]
+Description=Prusa Connect Multi-Camera MJPEG Stream Servers
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/prusa-cam-multi/scripts/multi_stream_server.sh
+Restart=always
+RestartSec=5
+User=root
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=camera-stream-multi
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/tmp
+
+[Install]
+WantedBy=multi-user.target

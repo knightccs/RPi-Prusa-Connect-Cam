@@ -36,6 +36,27 @@ cat install.sh  # Review the script
 sudo bash install.sh
 ```
 
+## Multi-camera variant
+
+The `multi-camera` branch includes `install-multi.sh`. It detects every connected
+RPi camera and USB webcam, then asks for a Prusa Connect token for each camera
+one at a time. Each camera gets its own fingerprint, upload loop, snapshot, and
+MJPEG stream. Streams use ports starting at `8090` (`8090`, `8091`, ...), so the
+multi-camera services can run alongside the original single-camera services.
+
+```bash
+sudo bash install-multi.sh
+```
+
+The multi-camera configuration is stored in `/etc/prusa_cam-multi.conf`.
+Useful commands:
+
+```bash
+journalctl -u camera-stream-multi -f
+journalctl -u prusa-connect-upload-multi -f
+sudo systemctl restart camera-stream-multi prusa-connect-upload-multi
+```
+
 ## Manual Installation
 
 1. Clone the repository:
