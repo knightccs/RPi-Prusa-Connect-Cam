@@ -36,6 +36,8 @@ echo ""
     echo "UPLOAD_INTERVAL=10"
     echo "STREAM_WIDTH=1280"
     echo "STREAM_HEIGHT=720"
+    echo "STREAM_FRAMERATE=5"
+    echo "STREAM_QUALITY=70"
     echo ""
 } > "$CONFIG_FILE"
 

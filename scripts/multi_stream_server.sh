@@ -39,6 +39,8 @@ CAMERA_NAME="${!name_key}"
 STREAM_PORT="${!port_key}"
 STREAM_WIDTH="${STREAM_WIDTH:-1280}"
 STREAM_HEIGHT="${STREAM_HEIGHT:-720}"
+STREAM_FRAMERATE="${STREAM_FRAMERATE:-5}"
+STREAM_QUALITY="${STREAM_QUALITY:-70}"
 EOF
     configs+=("$worker_config")
     echo "Starting ${!name_key} on port ${!port_key}"

@@ -54,3 +54,7 @@ STREAM_PORT=8080
 # Stream resolution (lower than capture for performance)
 STREAM_WIDTH=1280
 STREAM_HEIGHT=720
+
+# Lower values reduce Raspberry Pi CPU usage.
+STREAM_FRAMERATE=5
+STREAM_QUALITY=70

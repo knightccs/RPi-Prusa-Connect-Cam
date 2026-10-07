@@ -23,6 +23,8 @@ source "$CONFIG_FILE"
 STREAM_PORT=${STREAM_PORT:-8080}
 STREAM_WIDTH=${STREAM_WIDTH:-1280}
 STREAM_HEIGHT=${STREAM_HEIGHT:-720}
+STREAM_FRAMERATE=${STREAM_FRAMERATE:-5}
+STREAM_QUALITY=${STREAM_QUALITY:-70}
 
 echo "========================================"
 echo "  Camera Stream Server"
@@ -32,6 +34,7 @@ echo "Camera Type: $CAMERA_TYPE"
 echo "Camera: $CAMERA_NAME"
 echo "Stream Port: $STREAM_PORT"
 echo "Resolution: ${STREAM_WIDTH}x${STREAM_HEIGHT}"
+echo "Frame rate: ${STREAM_FRAMERATE} fps"
 echo ""
 
 case "$CAMERA_TYPE" in
@@ -52,9 +55,9 @@ case "$CAMERA_TYPE" in
         $VID_CMD --camera "$CAMERA_ID" \
             --width "$STREAM_WIDTH" \
             --height "$STREAM_HEIGHT" \
-            --framerate 15 \
+            --framerate "$STREAM_FRAMERATE" \
             --codec mjpeg \
-            --quality 80 \
+            --quality "$STREAM_QUALITY" \
             --nopreview \
             -t 0 \
             --inline \
@@ -209,7 +212,7 @@ while True:
         # decoding and re-encoding them, which is expensive on a Raspberry Pi.
         ffmpeg -f v4l2 -input_format mjpeg \
             -video_size "${STREAM_WIDTH}x${STREAM_HEIGHT}" \
-            -framerate 15 \
+            -framerate "$STREAM_FRAMERATE" \
             -i "$CAMERA_DEVICE" \
             -c:v copy \
             -f mjpeg - 2>/dev/null | python3 -c "
