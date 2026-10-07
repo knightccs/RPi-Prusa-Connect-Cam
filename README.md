@@ -49,6 +49,9 @@ sudo bash install-multi.sh
 ```
 
 The multi-camera configuration is stored in `/etc/prusa_cam-multi.conf`.
+During installation, each camera can be configured with or without a local
+live stream. Cameras without a local stream still run a capture-only worker and
+continue uploading snapshots to Prusa Connect.
 Useful commands:
 
 ```bash

@@ -29,7 +29,7 @@ trap cleanup TERM INT EXIT
 
 for ((i=1; i<=CAMERA_COUNT; i++)); do
     type_key="CAMERA_${i}_TYPE"; id_key="CAMERA_${i}_ID"; device_key="CAMERA_${i}_DEVICE"
-    name_key="CAMERA_${i}_NAME"; port_key="CAMERA_${i}_PORT"
+    name_key="CAMERA_${i}_NAME"; port_key="CAMERA_${i}_PORT"; stream_key="CAMERA_${i}_STREAM"
     worker_config="$WORK_DIR/camera_${i}.conf"
     cat > "$worker_config" <<EOF
 CAMERA_TYPE="${!type_key}"
@@ -41,17 +41,23 @@ STREAM_WIDTH="${STREAM_WIDTH:-1280}"
 STREAM_HEIGHT="${STREAM_HEIGHT:-720}"
 STREAM_FRAMERATE="${STREAM_FRAMERATE:-5}"
 STREAM_QUALITY="${STREAM_QUALITY:-70}"
+CAPTURE_INTERVAL="${UPLOAD_INTERVAL:-10}"
 EOF
     configs+=("$worker_config")
-    echo "Starting ${!name_key} on port ${!port_key}"
+    if [[ "${!stream_key:-1}" == "1" ]]; then
+        echo "Starting ${!name_key} on port ${!port_key}"
+        worker_script="$SCRIPT_DIR/stream_server.sh"
+    else
+        echo "Starting snapshot-only capture for ${!name_key}"
+        worker_script="$SCRIPT_DIR/capture_snapshot.sh"
+    fi
     if command -v setsid >/dev/null 2>&1; then
         setsid env CONFIG_FILE="$worker_config" \
             SNAPSHOT_FILE="/tmp/stream_snapshot_${i}.jpg" \
-            "$SCRIPT_DIR/stream_server.sh" &
+            "$worker_script" &
     else
-        CONFIG_FILE="$worker_config" \
-            SNAPSHOT_FILE="/tmp/stream_snapshot_${i}.jpg" \
-            "$SCRIPT_DIR/stream_server.sh" &
+        CONFIG_FILE="$worker_config" SNAPSHOT_FILE="/tmp/stream_snapshot_${i}.jpg" \
+            "$worker_script" &
     fi
     children+=("$!")
 done

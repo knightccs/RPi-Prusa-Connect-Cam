@@ -19,7 +19,8 @@ apt-get install -y -qq curl v4l-utils python3 ffmpeg
 mkdir -p "$INSTALL_DIR/scripts"
 cp "$SCRIPT_DIR/scripts/detect_cameras.sh" "$SCRIPT_DIR/scripts/stream_server.sh" \
    "$SCRIPT_DIR/scripts/multi_stream_server.sh" \
-   "$SCRIPT_DIR/scripts/multi_prusa_connect_upload.sh" "$INSTALL_DIR/scripts/"
+   "$SCRIPT_DIR/scripts/multi_prusa_connect_upload.sh" \
+   "$SCRIPT_DIR/scripts/capture_snapshot.sh" "$INSTALL_DIR/scripts/"
 chmod +x "$INSTALL_DIR/scripts/"*.sh
 
 source "$INSTALL_DIR/scripts/detect_cameras.sh"
@@ -54,14 +55,22 @@ for index in "${!cameras[@]}"; do
     echo "Camera $number/${#cameras[@]}: $name"
     echo "  Stream: http://<raspberry-pi-ip>:$port"
     while true; do
+        read -r -p "  Enable local live stream for this camera? [Y/n]: " stream_choice < /dev/tty
+        case "${stream_choice:-y}" in
+            y|Y) stream_enabled=1; break ;;
+            n|N) stream_enabled=0; break ;;
+            *) echo "  Please answer y or n." ;;
+        esac
+    done
+    while true; do
         read -r -p "  Enter the Prusa Connect token for this camera: " token < /dev/tty
         [[ -n "$token" ]] && break
         echo "  Token cannot be empty."
     done
     fingerprint=$(cat /proc/sys/kernel/random/uuid)
-    printf 'CAMERA_%s_TYPE=%q\nCAMERA_%s_ID=%q\nCAMERA_%s_DEVICE=%q\nCAMERA_%s_NAME=%q\nCAMERA_%s_PORT=%q\nCAMERA_%s_FINGERPRINT=%q\nCAMERA_%s_TOKEN=%q\n\n' \
+    printf 'CAMERA_%s_TYPE=%q\nCAMERA_%s_ID=%q\nCAMERA_%s_DEVICE=%q\nCAMERA_%s_NAME=%q\nCAMERA_%s_PORT=%q\nCAMERA_%s_STREAM=%q\nCAMERA_%s_FINGERPRINT=%q\nCAMERA_%s_TOKEN=%q\n\n' \
         "$number" "$type" "$number" "$id" "$number" "$device" "$number" "$name" \
-        "$number" "$port" "$number" "$fingerprint" "$number" "$token" >> "$CONFIG_FILE"
+        "$number" "$port" "$number" "$stream_enabled" "$number" "$fingerprint" "$number" "$token" >> "$CONFIG_FILE"
     echo ""
 done
 chmod 600 "$CONFIG_FILE"
