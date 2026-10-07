@@ -9,6 +9,23 @@ DELAY_SECONDS="${UPLOAD_INTERVAL:-10}"
 
 echo "Uploading $CAMERA_COUNT camera snapshots every ${DELAY_SECONDS}s"
 
+# Set each camera's display name in Prusa Connect once at startup.
+for ((i=1; i<=CAMERA_COUNT; i++)); do
+    name_key="CAMERA_${i}_NAME"
+    fingerprint_key="CAMERA_${i}_FINGERPRINT"
+    token_key="CAMERA_${i}_TOKEN"
+    camera_name="${!name_key}"
+    fingerprint="${!fingerprint_key}"
+    token="${!token_key}"
+    curl -s -X PUT "https://connect.prusa3d.com/c/info" \
+        -H "accept: application/json" \
+        -H "content-type: application/json" \
+        -H "fingerprint: $fingerprint" \
+        -H "token: $token" \
+        --data "{\"config\":{\"name\": \"$camera_name\"}}" \
+        --no-progress-meter
+done
+
 while true; do
     for ((i=1; i<=CAMERA_COUNT; i++)); do
         fingerprint_key="CAMERA_${i}_FINGERPRINT"
