@@ -36,6 +36,12 @@ detect_usb_cameras() {
     local current_name=""
     local found_device=false
 
+    is_capture_node() {
+        v4l2-ctl --all -d "$1" 2>/dev/null \
+            | sed -n '/Device Caps:/,/Media Driver Info:/p' \
+            | grep -q 'Video Capture'
+    }
+
     v4l2-ctl --list-devices 2>/dev/null | while IFS= read -r line; do
         if [[ -z "$line" ]]; then
             found_device=false
@@ -48,9 +54,9 @@ detect_usb_cameras() {
                 if [[ "$device_path" =~ /dev/video[0-9]+$ ]]; then
                     # Skip RPi camera devices (they appear as mmal, bcm2835, unicam, or rp1-cfe)
                     # Some USB cameras expose a metadata node before the real capture node.
-                    # Select only nodes that advertise Video Capture formats.
+                    # Select only nodes whose device capabilities include Video Capture.
                     if [[ ! "$current_name" =~ mmal|bcm2835|unicam|rp1-cfe|"platform:"|rpivid ]] && \
-                       v4l2-ctl --list-formats-ext -d "$device_path" 2>/dev/null | grep -q "Video Capture"; then
+                       is_capture_node "$device_path"; then
                         echo "USB:$device_path:$current_name"
                         found_device=true
                     fi

@@ -17,13 +17,14 @@ for ((i=1; i<=CAMERA_COUNT; i++)); do
     camera_name="${!name_key}"
     fingerprint="${!fingerprint_key}"
     token="${!token_key}"
-    curl -s -X PUT "https://connect.prusa3d.com/c/info" \
+    info_response=$(curl -sS -o /dev/null -w "%{http_code}" -X PUT "https://connect.prusa3d.com/c/info" \
         -H "accept: application/json" \
         -H "content-type: application/json" \
         -H "fingerprint: $fingerprint" \
         -H "token: $token" \
         --data "{\"config\":{\"name\": \"$camera_name\"}}" \
-        --no-progress-meter
+        --no-progress-meter)
+    echo "Camera $i registration response: HTTP $info_response"
 done
 
 while true; do

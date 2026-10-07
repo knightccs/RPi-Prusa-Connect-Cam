@@ -18,7 +18,11 @@ configs=()
 
 cleanup() {
     trap - TERM INT EXIT
-    for pid in "${children[@]}"; do kill "$pid" 2>/dev/null || true; done
+    for pid in "${children[@]}"; do
+        # Each worker gets its own session so FFmpeg and Python descendants are
+        # stopped together when systemd restarts this service.
+        kill -TERM -- "-$pid" 2>/dev/null || kill "$pid" 2>/dev/null || true
+    done
     for file in "${configs[@]}"; do rm -f "$file"; done
 }
 trap cleanup TERM INT EXIT
@@ -38,9 +42,15 @@ STREAM_HEIGHT="${STREAM_HEIGHT:-720}"
 EOF
     configs+=("$worker_config")
     echo "Starting ${!name_key} on port ${!port_key}"
-    CONFIG_FILE="$worker_config" \
-        SNAPSHOT_FILE="/tmp/stream_snapshot_${i}.jpg" \
-        "$SCRIPT_DIR/stream_server.sh" &
+    if command -v setsid >/dev/null 2>&1; then
+        setsid env CONFIG_FILE="$worker_config" \
+            SNAPSHOT_FILE="/tmp/stream_snapshot_${i}.jpg" \
+            "$SCRIPT_DIR/stream_server.sh" &
+    else
+        CONFIG_FILE="$worker_config" \
+            SNAPSHOT_FILE="/tmp/stream_snapshot_${i}.jpg" \
+            "$SCRIPT_DIR/stream_server.sh" &
+    fi
     children+=("$!")
 done
 

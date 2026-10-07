@@ -205,12 +205,13 @@ while True:
             exit 1
         fi
 
-        # Use ffmpeg + python server for USB cameras
+        # USB cameras already produce MJPEG. Copying the compressed frames avoids
+        # decoding and re-encoding them, which is expensive on a Raspberry Pi.
         ffmpeg -f v4l2 -input_format mjpeg \
             -video_size "${STREAM_WIDTH}x${STREAM_HEIGHT}" \
             -framerate 15 \
             -i "$CAMERA_DEVICE" \
-            -c:v mjpeg -q:v 5 \
+            -c:v copy \
             -f mjpeg - 2>/dev/null | python3 -c "
 import sys
 import socket

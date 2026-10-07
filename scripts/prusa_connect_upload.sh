@@ -17,14 +17,16 @@ fi
 # Load configuration
 source "$CONFIG_FILE"
 
-# Set camera name in Prusa Connect
-curl -s -X PUT "https://connect.prusa3d.com/c/info" \
+# Set camera name in Prusa Connect without logging the response body, which
+# contains the camera token.
+INFO_RESPONSE=$(curl -sS -o /dev/null -w "%{http_code}" -X PUT "https://connect.prusa3d.com/c/info" \
     -H "accept: application/json" \
     -H "content-type: application/json" \
     -H "fingerprint: $FINGERPRINT" \
     -H "token: $TOKEN" \
     --data "{\"config\":{\"name\": \"$CAMERA_NAME\"}}" \
-    --no-progress-meter
+    --no-progress-meter)
+echo "Camera registration response: HTTP $INFO_RESPONSE"
 
 # API endpoint
 HTTP_URL="https://connect.prusa3d.com/c/snapshot"
