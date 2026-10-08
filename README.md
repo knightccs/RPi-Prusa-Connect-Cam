@@ -36,29 +36,117 @@ cat install.sh  # Review the script
 sudo bash install.sh
 ```
 
-## Multi-camera variant
+## Multi-camera setup
 
-The `multi-camera` branch includes `install-multi.sh`. It detects every connected
-RPi camera and USB webcam, then asks for a Prusa Connect token for each camera
-one at a time. Each camera gets its own fingerprint, upload loop, snapshot, and
-MJPEG stream. Streams use ports starting at `8090` (`8090`, `8091`, ...), so the
-multi-camera services can run alongside the original single-camera services.
+The `multi-camera` branch supports multiple Raspberry Pi cameras and USB
+webcams on one Pi. It detects all usable camera devices, asks for each camera's
+Prusa Connect token separately, and gives each camera its own fingerprint,
+snapshot file, and upload loop.
+
+### Install the multi-camera branch
+
+Clone your fork and select the branch:
 
 ```bash
+git clone -b multi-camera https://github.com/YOUR-GITHUB-USER/RPi-Prusa-Connect-Cam.git
+cd RPi-Prusa-Connect-Cam
 sudo bash install-multi.sh
 ```
 
-The multi-camera configuration is stored in `/etc/prusa_cam-multi.conf`.
-During installation, each camera can be configured with or without a local
-live stream. Cameras without a local stream still run a capture-only worker and
-continue uploading snapshots to Prusa Connect.
-Useful commands:
+Before running the installer, create one camera in Prusa Connect for each
+camera you want to upload:
+
+1. Open the printer in [Prusa Connect](https://connect.prusa3d.com).
+2. Open the **Camera** tab.
+3. Choose **Add new other camera**.
+4. Copy the token.
+5. Repeat for every camera.
+
+The installer then detects the cameras and asks, in order, for each token. It
+also asks whether each camera should have a local live stream:
+
+```text
+Enable local live stream for this camera? [Y/n]
+```
+
+Answer `Y` to serve an MJPEG stream, or `n` to use capture-only mode. Capture-
+only cameras still upload snapshots to Prusa Connect but use much less CPU.
+
+### Local stream ports
+
+Streams start at port `8090`:
+
+```text
+Camera 1: http://<pi-ip>:8090
+Camera 2: http://<pi-ip>:8091
+Camera 3: http://<pi-ip>:8092
+```
+
+If a camera is capture-only, its port is intentionally unused.
+
+### Avoid conflicts with the original service
+
+If the original single-camera version was installed on the Pi, disable its
+services before starting the multi-camera version. Otherwise two services may
+try to open the same camera device:
 
 ```bash
+sudo systemctl disable --now camera-stream.service
+sudo systemctl disable --now prusa-connect-upload.service
+```
+
+The multi-camera services are:
+
+```bash
+sudo systemctl enable --now camera-stream-multi.service
+sudo systemctl enable --now prusa-connect-upload-multi.service
+```
+
+### Multi-camera configuration
+
+The configuration is stored in `/etc/prusa_cam-multi.conf`. Each camera has
+its own settings, including `CAMERA_1_TOKEN`, `CAMERA_2_TOKEN`, and so on.
+`CAMERA_N_STREAM=1` enables a local stream; `CAMERA_N_STREAM=0` enables
+capture-only uploads.
+
+The default stream settings are deliberately modest for Raspberry Pi hardware:
+
+```text
+STREAM_WIDTH=1280
+STREAM_HEIGHT=720
+STREAM_FRAMERATE=5
+STREAM_QUALITY=70
+```
+
+Lower `STREAM_WIDTH`, `STREAM_HEIGHT`, or `STREAM_FRAMERATE` if CPU usage is
+high. USB cameras that already provide MJPEG frames are copied without
+re-encoding.
+
+### Update an existing multi-camera installation
+
+Updating the scripts does not require entering the tokens again:
+
+```bash
+cd RPi-Prusa-Connect-Cam
+git pull origin multi-camera
+sudo cp scripts/*.sh /opt/prusa-cam-multi/scripts/
+sudo chmod +x /opt/prusa-cam-multi/scripts/*.sh
+sudo systemctl restart camera-stream-multi
+sudo systemctl restart prusa-connect-upload-multi
+```
+
+### Multi-camera logs and status
+
+```bash
+sudo systemctl status camera-stream-multi --no-pager
+sudo systemctl status prusa-connect-upload-multi --no-pager
 journalctl -u camera-stream-multi -f
 journalctl -u prusa-connect-upload-multi -f
-sudo systemctl restart camera-stream-multi prusa-connect-upload-multi
 ```
+
+Successful uploads normally appear as `camera N upload: HTTP 200` or `HTTP
+204`. `snapshot not ready` means the capture worker is not producing a file;
+check the camera-stream service log and `/tmp/stream_snapshot_N.jpg`.
 
 ## Manual Installation
 
