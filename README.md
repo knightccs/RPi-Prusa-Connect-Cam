@@ -1,4 +1,4 @@
-# RPi-Prusa-Connect-Cam
+# RPi-Prusa-Connect-Multi-Cam
 
 A simple setup script for connecting a Raspberry Pi camera to Prusa Connect. Works with both Raspberry Pi Camera Modules and USB webcams.
 
@@ -25,13 +25,13 @@ A simple setup script for connecting a Raspberry Pi camera to Prusa Connect. Wor
 Run this single command on your Raspberry Pi:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/Houzvicka/RPi-Prusa-Connect-Cam/main/install.sh | sudo bash
+wget -qO- https://raw.githubusercontent.com/knightccs/RPi-Prusa-Connect-Multi-Cam/main/install.sh | sudo bash
 ```
 
 Or, if you prefer to review the script first:
 
 ```bash
-wget https://raw.githubusercontent.com/Houzvicka/RPi-Prusa-Connect-Cam/main/install.sh
+wget https://raw.githubusercontent.com/knightccs/RPi-Prusa-Connect-Multi-Cam/main/install.sh
 cat install.sh  # Review the script
 sudo bash install.sh
 ```
@@ -48,8 +48,8 @@ snapshot file, and upload loop.
 Clone your fork and select the branch:
 
 ```bash
-git clone -b multi-camera https://github.com/YOUR-GITHUB-USER/RPi-Prusa-Connect-Cam.git
-cd RPi-Prusa-Connect-Cam
+git clone -b multi-camera https://github.com/knightccs/RPi-Prusa-Connect-Multi-Cam.git
+cd RPi-Prusa-Connect-Multi-Cam
 sudo bash install-multi.sh
 ```
 
@@ -127,7 +127,7 @@ re-encoding.
 Updating the scripts does not require entering the tokens again:
 
 ```bash
-cd RPi-Prusa-Connect-Cam
+cd RPi-Prusa-Connect-Multi-Cam
 git pull origin multi-camera
 sudo cp scripts/*.sh /opt/prusa-cam-multi/scripts/
 sudo chmod +x /opt/prusa-cam-multi/scripts/*.sh
@@ -152,8 +152,8 @@ check the camera-stream service log and `/tmp/stream_snapshot_N.jpg`.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Houzvicka/RPi-Prusa-Connect-Cam.git
-   cd RPi-Prusa-Connect-Cam
+   git clone https://github.com/knightccs/RPi-Prusa-Connect-Multi-Cam.git
+   cd RPi-Prusa-Connect-Multi-Cam
    ```
 
 2. Run the installer:
@@ -245,7 +245,7 @@ sudo /opt/prusa-cam/uninstall.sh
 
 Or run:
 ```bash
-wget -qO- https://raw.githubusercontent.com/Houzvicka/RPi-Prusa-Connect-Cam/main/uninstall.sh | sudo bash
+wget -qO- https://raw.githubusercontent.com/knightccs/RPi-Prusa-Connect-Multi-Cam/main/uninstall.sh | sudo bash
 ```
 
 ## Troubleshooting
